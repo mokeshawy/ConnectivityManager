@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "737919726222",
+    "project_id": "internetaccess-f1f11",
+    "storage_bucket": "internetaccess-f1f11.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737919726222:android:e57829908769ff425d0fdf",
+        "android_client_info": {
+          "package_name": "com.example.internetaccess"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "737919726222-09ccmjj9cj5a0cf2v77o0cue7ll0d7t6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhOAxjI2-pGH45S876nTPvPjw2HGwuAJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "737919726222-09ccmjj9cj5a0cf2v77o0cue7ll0d7t6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
