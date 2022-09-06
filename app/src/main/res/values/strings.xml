@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">InternetAccess</string>
+    <string name="msg_please_wait">Please wait...</string>
 </resources>

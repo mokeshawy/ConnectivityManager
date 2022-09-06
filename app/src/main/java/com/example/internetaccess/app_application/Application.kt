@@ -2,7 +2,8 @@ package com.example.internetaccess.app_application
 
 import android.app.Application
 import android.util.Log
-import com.google.firebase.crashlytics.BuildConfig
+import com.example.internetaccess.BuildConfig
+
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber

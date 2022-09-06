@@ -11,11 +11,12 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.InternetAccess"
         tools:targetApi="31">
         <activity
-            android:name=".feature.mainactivity.MainActivity"
+            android:name=".feature.mainactivity.presentation.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
