@@ -1,0 +1,30 @@
+package com.example.internetaccess.feature.frist_fragment
+
+import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.example.internetaccess.R
+import com.example.internetaccess.core.base_fragment.BaseFragment
+import com.example.internetaccess.databinding.FragmentFirstBinding
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
+class FirstFragment : BaseFragment<FragmentFirstBinding, FirstFragmentViewModel>() {
+
+    override val binding by lazy { FragmentFirstBinding.inflate(layoutInflater) }
+    override val viewModel: FirstFragmentViewModel by viewModels()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+
+        binding.startNextScreen.setOnClickListener {
+            if (isNetworkAvailable && isInternetAvailable) {
+                findNavController().navigate(R.id.actionFirstFragmentToSecondFragment)
+            } else {
+                showShortToast("Not Available")
+            }
+        }
+    }
+}

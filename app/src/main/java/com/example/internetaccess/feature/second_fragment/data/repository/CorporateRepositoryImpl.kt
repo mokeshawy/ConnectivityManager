@@ -1,12 +1,12 @@
-package com.example.internetaccess.feature.mainactivity.data.repository
+package com.example.internetaccess.feature.second_fragment.data.repository
 
 import com.example.internetaccess.core.baserepository.BaseRepository
 import com.example.internetaccess.core.error_handler.getErrorBody
 import com.example.internetaccess.core.error_handler.state.State
 import com.example.internetaccess.services.InternetServices
-import com.example.solarus.core.utils.error.GenralError
-import com.example.internetaccess.feature.mainactivity.data.model.reponse.corporate_response.CorporateResponseDto
-import com.example.internetaccess.feature.mainactivity.domain.repository.CorporateRepository
+import com.example.internetaccess.core.error_handler.GeneralError
+import com.example.internetaccess.feature.second_fragment.data.model.reponse.corporate_response.CorporateResponseDto
+import com.example.internetaccess.feature.second_fragment.domain.repository.CorporateRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -36,7 +36,8 @@ class CorporateRepositoryImpl @Inject constructor(private val internetServices: 
     }
 
     private fun <T> getCorporateNotFoundError() =
-        State.Error<T>(GenralError.E(errorCode = CORPORATE_NOT_FOUND,
+        State.Error<T>(
+            GeneralError.E(errorCode = CORPORATE_NOT_FOUND,
             logMessage = "Corporate not found"))
 
     companion object {

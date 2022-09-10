@@ -1,4 +1,4 @@
-package com.example.internetaccess.feature.mainactivity.data.model.reponse.corporate_response
+package com.example.internetaccess.feature.second_fragment.data.model.reponse.corporate_response
 
 
 import com.google.gson.annotations.SerializedName

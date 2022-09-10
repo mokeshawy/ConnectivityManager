@@ -1,9 +1,8 @@
-package com.example.solarus.core.utils.error
+package com.example.internetaccess.core.error_handler
 
-import com.example.internetaccess.core.error_handler.ErrorLogPriority
 import timber.log.Timber
 
-sealed class GenralError {
+sealed class GeneralError {
     var errorCode: String = ""
     var exception: Throwable? = null
     var extraData: Any? = null
@@ -28,7 +27,7 @@ sealed class GenralError {
         logTag: String? = null,
         exception: Throwable? = null,
         extraData: Any? = null
-    ) : GenralError() {
+    ) : GeneralError() {
         init {
             this.logPriority = ErrorLogPriority.ERROR
             this.errorCode = errorCode
@@ -46,7 +45,7 @@ sealed class GenralError {
         logTag: String? = null,
         exception: Throwable? = null,
         extraData: Any? = null
-    ) : GenralError() {
+    ) : GeneralError() {
         init {
             this.logPriority = ErrorLogPriority.WARN
             this.errorCode = errorCode
@@ -64,7 +63,7 @@ sealed class GenralError {
         logTag: String? = null,
         exception: Throwable? = null,
         extraData: Any? = null
-    ) : GenralError() {
+    ) : GeneralError() {
         init {
             this.logPriority = ErrorLogPriority.INFO
             this.errorCode = errorCode

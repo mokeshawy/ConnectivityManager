@@ -1,8 +1,8 @@
-package com.example.internetaccess.feature.mainactivity.di
+package com.example.internetaccess.feature.second_fragment.di
 
 import com.example.internetaccess.services.InternetServices
-import com.example.internetaccess.feature.mainactivity.data.repository.CorporateRepositoryImpl
-import com.example.internetaccess.feature.mainactivity.domain.repository.CorporateRepository
+import com.example.internetaccess.feature.second_fragment.data.repository.CorporateRepositoryImpl
+import com.example.internetaccess.feature.second_fragment.domain.repository.CorporateRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

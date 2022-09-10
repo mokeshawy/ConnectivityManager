@@ -1,11 +1,11 @@
-package com.example.internetaccess.feature.mainactivity.domain.viewmodel
+package com.example.internetaccess.feature.second_fragment.domain.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.internetaccess.core.error_handler.GeneralError
 import com.example.internetaccess.core.error_handler.state.State
-import com.example.internetaccess.feature.mainactivity.data.model.reponse.corporate_response.CorporateResponseDto
-import com.example.internetaccess.feature.mainactivity.domain.repository.CorporateRepository
-import com.example.solarus.core.utils.error.GenralError
+import com.example.internetaccess.feature.second_fragment.data.model.reponse.corporate_response.CorporateResponseDto
+import com.example.internetaccess.feature.second_fragment.domain.repository.CorporateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ActivityMainViewModel @Inject constructor(
+class SecondFragmentViewModel  @Inject constructor(
     private val corporateRepository: CorporateRepository,
 ) : ViewModel() {
 
@@ -41,11 +41,12 @@ class ActivityMainViewModel @Inject constructor(
         if (state.data != null) {
             _responseState.emit(State.Success(state.data))
         } else {
-            _responseState.emit(State.Error(GenralError.I(CORPORATE_NOT_FOUND)))
+            _responseState.emit(State.Error(GeneralError.I(CORPORATE_NOT_FOUND)))
         }
     }
 
     companion object {
         const val CORPORATE_NOT_FOUND = "CORPORATE_NOT_FOUND"
+        const val NO_INTERNET_ACCESS = "NO_INTERNET_ACCESS"
     }
 }

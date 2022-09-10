@@ -54,13 +54,18 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
 
+    // Navigation component.
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.2'
+
+
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 
     //ViewModels delegation extensions for activity
     implementation 'androidx.activity:activity-ktx:1.5.1'
-    implementation "androidx.fragment:fragment-ktx:1.5.1"
+    implementation "androidx.fragment:fragment-ktx:1.5.2"
 
     // dagger hilt
     implementation "com.google.dagger:hilt-android:2.43.1"
