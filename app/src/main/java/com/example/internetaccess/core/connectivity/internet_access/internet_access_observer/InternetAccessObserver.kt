@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
+import java.net.UnknownHostException
 
 class InternetAccessObserver {
 
@@ -45,7 +47,11 @@ class InternetAccessObserver {
             httpURLConnection.requestMethod = "GET"
             httpURLConnection.connect()
             return httpURLConnection.responseCode == 200
-        } catch (e: Exception) {
+        } catch (e:SocketTimeoutException) {
+            handleInternetExceptionError(getSocketTimeoutExceptionError(e))
+        }catch (e:UnknownHostException){
+            handleInternetExceptionError(getUnknownHostExceptionError(e))
+        }catch (e: Exception){
             handleInternetExceptionError(getGeneralException(e))
         }
         return false
@@ -55,13 +61,27 @@ class InternetAccessObserver {
         onInternetExceptionError(error)
     }
 
+    private fun getSocketTimeoutExceptionError(e: SocketTimeoutException) = GeneralError.I(
+        errorCode = SOCKET_TIME_OUT_EXCEPTION,
+        logMessage = "The internet not available in this device",
+        extraData = e
+    )
+
+    private fun getUnknownHostExceptionError(e: UnknownHostException) = GeneralError.I(
+        errorCode = UNKNOWN_HOST_EXCEPTION,
+        logMessage = "Network is disconnect in this device",
+        extraData = e
+    )
+
     private fun getGeneralException(e: Exception) = GeneralError.E(
         errorCode = GENERAL_EXCEPTION,
-        logMessage = "Error with connect host name with general Exception",
+        logMessage = "General Exception",
         extraData = e
     )
 
     companion object {
+        const val SOCKET_TIME_OUT_EXCEPTION = "SOCKET_TIME_OUT_EXCEPTION"
+        const val UNKNOWN_HOST_EXCEPTION = "UNKNOWN_HOST_EXCEPTION"
         const val GENERAL_EXCEPTION = "GENERAL_EXCEPTION"
     }
 }

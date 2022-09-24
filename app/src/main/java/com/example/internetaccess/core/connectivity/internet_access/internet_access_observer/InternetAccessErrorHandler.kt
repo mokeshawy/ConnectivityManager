@@ -10,7 +10,7 @@ class InternetAccessErrorHandler {
     fun handleInternetAccessError(activity: Activity ,error: GeneralError) {
         (activity as? MainActivity)?.handleError(error) {
             when (error.errorCode) {
-                InternetAccessObserver.GENERAL_EXCEPTION -> Timber.e("UNKNOWN_HOST_EXCEPTION")
+
             }
         }
     }
