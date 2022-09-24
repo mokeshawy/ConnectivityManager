@@ -2,7 +2,6 @@ package com.example.internetaccess.core.connectivity.internet_access.internet_ac
 
 import com.example.internetaccess.core.connectivity.internet_access.internet_access_state.InternetAccessState
 import com.example.internetaccess.core.connectivity.internet_access.internet_access_state.InternetAccessState.AVAILABLE
-import com.example.internetaccess.core.connectivity.internet_access.internet_access_state.InternetAccessState.UNAVAILABLE
 import com.example.internetaccess.core.error_handler.GeneralError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -10,12 +9,13 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
+import javax.net.ssl.SSLHandshakeException
 
 class InternetAccessObserver {
 
@@ -30,8 +30,8 @@ class InternetAccessObserver {
         return callbackFlow {
             withContext(Dispatchers.IO) {
                 when (isInternetAccess()) {
-                    true -> launch { send(AVAILABLE) }
-                    false -> launch { send(UNAVAILABLE) }
+                    true -> send(AVAILABLE)
+                    else -> Timber.e("UnAvailable")
                 }
             }
             awaitClose { cancel() }
@@ -47,11 +47,16 @@ class InternetAccessObserver {
             httpURLConnection.requestMethod = "GET"
             httpURLConnection.connect()
             return httpURLConnection.responseCode == 200
-        } catch (e:SocketTimeoutException) {
+        }  catch (e: SocketTimeoutException) {
             handleInternetExceptionError(getSocketTimeoutExceptionError(e))
-        }catch (e:UnknownHostException){
+            // the cellular is open but not have internet
+        } catch (e : SSLHandshakeException){
+            handleInternetExceptionError(getSSLHandshakeExceptionError(e))
+            // the wifi is open but not have internet
+        } catch (e: UnknownHostException) {
             handleInternetExceptionError(getUnknownHostExceptionError(e))
-        }catch (e: Exception){
+            // the wifi and cellular is offline
+        } catch (e: Exception) {
             handleInternetExceptionError(getGeneralException(e))
         }
         return false
@@ -63,6 +68,12 @@ class InternetAccessObserver {
 
     private fun getSocketTimeoutExceptionError(e: SocketTimeoutException) = GeneralError.I(
         errorCode = SOCKET_TIME_OUT_EXCEPTION,
+        logMessage = "The internet not available in this device",
+        extraData = e
+    )
+
+    private fun getSSLHandshakeExceptionError(e:SSLHandshakeException) = GeneralError.E(
+        errorCode = SSL_HANDSHAKE_EXCEPTION,
         logMessage = "The internet not available in this device",
         extraData = e
     )
@@ -81,6 +92,7 @@ class InternetAccessObserver {
 
     companion object {
         const val SOCKET_TIME_OUT_EXCEPTION = "SOCKET_TIME_OUT_EXCEPTION"
+        const val SSL_HANDSHAKE_EXCEPTION = "SSL_HANDSHAKE_EXCEPTION"
         const val UNKNOWN_HOST_EXCEPTION = "UNKNOWN_HOST_EXCEPTION"
         const val GENERAL_EXCEPTION = "GENERAL_EXCEPTION"
     }

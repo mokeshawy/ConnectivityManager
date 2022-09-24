@@ -30,7 +30,7 @@ class InternetAccessDialogFragment : DialogFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         binding = FragmentDialogInternetAccessBinding.inflate(layoutInflater)
         isCancelable = false
         return binding.root
