@@ -18,15 +18,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkManager
 import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkStatus
-import com.example.internetaccess.core.connectivity.internet_access.internet_access_manager.InternetAccessArrowComponent
-import com.example.internetaccess.core.connectivity.internet_access.internet_access_manager.InternetAccessManager
 import com.example.internetaccess.core.error_handler.GeneralError
 import com.example.internetaccess.core.error_handler.GeneralErrorHandler
 import com.example.internetaccess.core.utils.showToast
 import javax.inject.Inject
 
 abstract class BaseFragment<dataBinding : ViewDataBinding, viewModel : ViewModel> :
-    Fragment(), NetworkStatus, InternetAccessArrowComponent {
+    Fragment(), NetworkStatus {
 
     protected abstract val viewModel: viewModel
     abstract val binding: dataBinding
@@ -34,15 +32,12 @@ abstract class BaseFragment<dataBinding : ViewDataBinding, viewModel : ViewModel
     @Inject
     lateinit var networkManager: NetworkManager
 
-    @Inject
-    lateinit var internetAccessManager: InternetAccessManager
     protected val isNetworkAvailable get() = networkManager.isAvailable
-    protected val isInternetAvailable get() = internetAccessManager.isInternetAccess
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val view = binding.root
         return view
@@ -105,13 +100,5 @@ abstract class BaseFragment<dataBinding : ViewDataBinding, viewModel : ViewModel
 
     override fun onLost(network: Network) {
         //showShortToast("Network not available")
-    }
-
-    override fun onInternetAccessAvailable(internetAccess: Boolean) {
-        showShortToast("Internet Available")
-    }
-
-    override fun onInternetAccessUnAvailable(internetAccess: Boolean) {
-        showShortToast("Internet UnAvailable")
     }
 }

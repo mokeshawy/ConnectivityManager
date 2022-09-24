@@ -97,4 +97,6 @@ dependencies {
     // Lottie
     implementation 'com.airbnb.android:lottie:4.2.2'
 
+    implementation 'com.jakewharton:process-phoenix:2.1.2'
+
 }

@@ -10,12 +10,14 @@ import android.net.NetworkRequest
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import timber.log.Timber
 import javax.inject.Inject
 
 class NetworkManager @Inject constructor(private val activity: Activity) {
 
     var isAvailable = false
+    var isNetworkConnected = MutableLiveData(false)
     private var networkCapabilities: NetworkCapabilities? = null
     private var getNetworkRequest = getNetworkRequest()
     private var networkCallback = getNetworkCallBack()
@@ -32,7 +34,6 @@ class NetworkManager @Inject constructor(private val activity: Activity) {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
                 getConnectivityManager().registerNetworkCallback(getNetworkRequest, networkCallback)
-
             }
 
             override fun onPause(owner: LifecycleOwner) {
@@ -68,6 +69,7 @@ class NetworkManager @Inject constructor(private val activity: Activity) {
             override fun onLost(network: Network) {
                 super.onLost(network)
                 isAvailable = false
+                isNetworkConnected.postValue(false)
                 networkStatus.onLost(network)
                 checkDisconnectInternetType()
             }
@@ -82,14 +84,17 @@ class NetworkManager @Inject constructor(private val activity: Activity) {
         networkCapabilities?.let {
             when {
                 it.hasTransport(TRANSPORT_CELLULAR) -> {
+                    isNetworkConnected.postValue(true)
                     Timber.e("Cellular is on")
                     //cellular turn on
                 }
                 it.hasTransport(TRANSPORT_WIFI) -> {
+                    isNetworkConnected.postValue(true)
                     Timber.e("Wifi is on")
                     //wifi turn on
                 }
                 it.hasTransport(TRANSPORT_ETHERNET) -> {
+                    isNetworkConnected.postValue(true)
                     Timber.e("Ethernet is on")
                     //ether net turn on
                 }

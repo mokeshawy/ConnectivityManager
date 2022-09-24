@@ -1,45 +1,69 @@
 package com.example.internetaccess.feature.mainactivity.presentation
 
 import android.net.Network
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.example.internetaccess.R
 import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkManager
 import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkStatus
-import com.example.internetaccess.core.connectivity.internet_access.internet_access_manager.InternetAccessArrowComponent
-import com.example.internetaccess.core.connectivity.internet_access.internet_access_manager.InternetAccessManager
+import com.example.internetaccess.core.connectivity.internet_access.ui.HAS_INTERNET_ACCESS
+import com.example.internetaccess.core.connectivity.internet_access.ui.InternetAccessDialogFragment
 import com.example.internetaccess.core.error_handler.GeneralError
 import com.example.internetaccess.core.error_handler.GeneralErrorHandler
 import com.example.internetaccess.databinding.ActivityMainBinding
 import com.example.internetaccess.feature.second_fragment.data.repository.CorporateRepositoryImpl
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), GeneralErrorHandler, NetworkStatus,
-    InternetAccessArrowComponent {
+class MainActivity : AppCompatActivity(), GeneralErrorHandler, NetworkStatus {
 
     lateinit var binding: ActivityMainBinding
     private val navHostFragment by lazy { supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment }
 
+    @Inject
+    lateinit var networkManager: NetworkManager
+    private val internetAccessDialogFragment by lazy { InternetAccessDialogFragment() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        observeOnIsNetworkConnected()
 
+//        lifecycleScope.launch {
+//            val internetAccess = withContext(Dispatchers.IO) { isOnline() }
+//            if (internetAccess) {
+//                showToast("Available")
+//            } else {
+//                showToast("UnAvailable")
+//            }
+//        }
     }
 
-    override fun onResume() {
-        super.onResume()
-
+    fun isOnline(): Boolean {
+        try {
+            val ping = Runtime.getRuntime().exec("ping -c 1 www.manexcard.com")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                return ping.waitFor(10, TimeUnit.SECONDS)
+            return ping.waitFor() == 0
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
     }
+
 
     private fun getCurrentFragment() = navHostFragment.childFragmentManager.fragments.firstOrNull()
-
 
     override fun handleError(error: GeneralError, callback: GeneralError.() -> Unit) {
         error.logError()
@@ -63,13 +87,15 @@ class MainActivity : AppCompatActivity(), GeneralErrorHandler, NetworkStatus,
         (getCurrentFragment() as? NetworkStatus)?.onLost(network)
     }
 
-    override fun onInternetAccessAvailable(internetAccess: Boolean) {
-        (getCurrentFragment() as? InternetAccessArrowComponent)?.
-        onInternetAccessAvailable(internetAccess)
+    private fun observeOnIsNetworkConnected() {
+        networkManager.isNetworkConnected.observe(this) {
+            if (!it) showInternetAccessDialogFragment()
+        }
     }
 
-    override fun onInternetAccessUnAvailable(internetAccess: Boolean) {
-        (getCurrentFragment() as? InternetAccessArrowComponent)?.
-        onInternetAccessUnAvailable(internetAccess)
+    private fun showInternetAccessDialogFragment() {
+        if (internetAccessDialogFragment.isAdded) return
+        internetAccessDialogFragment.show(navHostFragment.parentFragmentManager,
+            HAS_INTERNET_ACCESS)
     }
 }

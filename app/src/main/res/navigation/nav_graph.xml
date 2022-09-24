@@ -17,4 +17,9 @@
         android:id="@+id/secondFragment"
         android:name="com.example.internetaccess.feature.second_fragment.presentation.SecondFragment"
         tools:layout="@layout/fragment_second" />
+
+    <dialog
+        android:id="@+id/dialogFragment"
+        android:name="com.example.internetaccess.core.connectivity.internet_access.ui.InternetAccessDialogFragment"
+        tools:layout="@layout/fragment_dialog_internet_access"/>
 </navigation>
