@@ -21,10 +21,6 @@ Napp/src/androidTest/java/com/example/internetaccess/ExampleInstrumentedTest.kt
 o
 ?app/src/test/java/com/example/internetaccess/ExampleUnitTest.kt,e/c/eca5883444d3e21f31875f1feb65737877446351
 ~
-Napp/src/main/java/com/example/internetaccess/core/error_handler/GenralError.kt,e/5/e5fe2e59c0f16adc73bc06807226f5b89bac32d9
-‚
-Rapp/src/main/java/com/example/internetaccess/core/error_handler/GneralException.kt,c/d/cde5dab6464bd7d2b3fa8f8270c5bf5dbd610da7
-~
 Napp/src/main/java/com/example/internetaccess/core/error_handler/state/State.kt,3/c/3c6f2b199d2f4698d473441001d416cd2c244e4f
 F
 app/proguard-rules.pro,9/e/9e08934d811afe28fbc77aaa3c0d747b94348db9

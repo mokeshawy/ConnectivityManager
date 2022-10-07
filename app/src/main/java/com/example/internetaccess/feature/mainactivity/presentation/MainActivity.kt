@@ -39,27 +39,6 @@ class MainActivity : AppCompatActivity(), GeneralErrorHandler, NetworkStatus {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         observeOnIsNetworkConnected()
-
-//        lifecycleScope.launch {
-//            val internetAccess = withContext(Dispatchers.IO) { isOnline() }
-//            if (internetAccess) {
-//                showToast("Available")
-//            } else {
-//                showToast("UnAvailable")
-//            }
-//        }
-    }
-
-    fun isOnline(): Boolean {
-        try {
-            val ping = Runtime.getRuntime().exec("ping -c 1 www.manexcard.com")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                return ping.waitFor(10, TimeUnit.SECONDS)
-            return ping.waitFor() == 0
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return false
     }
 
 

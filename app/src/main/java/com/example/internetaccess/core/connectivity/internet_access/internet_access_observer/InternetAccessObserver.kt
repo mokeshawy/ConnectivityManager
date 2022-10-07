@@ -1,7 +1,9 @@
 package com.example.internetaccess.core.connectivity.internet_access.internet_access_observer
 
+import android.app.Activity
 import com.example.internetaccess.core.connectivity.internet_access.internet_access_state.InternetAccessState
 import com.example.internetaccess.core.connectivity.internet_access.internet_access_state.InternetAccessState.AVAILABLE
+import com.example.internetaccess.core.connectivity.internet_access.internet_access_state.InternetAccessState.UNAVAILABLE
 import com.example.internetaccess.core.error_handler.GeneralError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -10,14 +12,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
+import javax.inject.Inject
 import javax.net.ssl.SSLHandshakeException
 
-class InternetAccessObserver {
+class InternetAccessObserver @Inject constructor(private val activity: Activity) {
 
     private var onInternetExceptionError: (GeneralError) -> Unit = {}
 
@@ -31,7 +33,7 @@ class InternetAccessObserver {
             withContext(Dispatchers.IO) {
                 when (isInternetAccess()) {
                     true -> send(AVAILABLE)
-                    else -> Timber.e("UnAvailable")
+                    false -> send(UNAVAILABLE)
                 }
             }
             awaitClose { cancel() }
@@ -41,16 +43,16 @@ class InternetAccessObserver {
     private fun isInternetAccess(): Boolean {
         try {
             val httpURLConnection =
-                URL("https://web.manexcard.com").openConnection() as HttpURLConnection
-            httpURLConnection.readTimeout = 145
-            httpURLConnection.connectTimeout = 2000
+                URL("https://www.google.com").openConnection() as HttpURLConnection
+            httpURLConnection.readTimeout = 500
+            httpURLConnection.connectTimeout = 5000
             httpURLConnection.requestMethod = "GET"
             httpURLConnection.connect()
             return httpURLConnection.responseCode == 200
-        }  catch (e: SocketTimeoutException) {
+        } catch (e: SocketTimeoutException) {
             handleInternetExceptionError(getSocketTimeoutExceptionError(e))
             // the cellular is open but not have internet
-        } catch (e : SSLHandshakeException){
+        } catch (e: SSLHandshakeException) {
             handleInternetExceptionError(getSSLHandshakeExceptionError(e))
             // the wifi is open but not have internet
         } catch (e: UnknownHostException) {
@@ -72,13 +74,13 @@ class InternetAccessObserver {
         extraData = e
     )
 
-    private fun getSSLHandshakeExceptionError(e:SSLHandshakeException) = GeneralError.E(
+    private fun getSSLHandshakeExceptionError(e: SSLHandshakeException) = GeneralError.E(
         errorCode = SSL_HANDSHAKE_EXCEPTION,
         logMessage = "The internet not available in this device",
         extraData = e
     )
 
-    private fun getUnknownHostExceptionError(e: UnknownHostException) = GeneralError.I(
+    private fun getUnknownHostExceptionError(e: UnknownHostException) = GeneralError.E(
         errorCode = UNKNOWN_HOST_EXCEPTION,
         logMessage = "Network is disconnect in this device",
         extraData = e

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.example.internetaccess.core.connectivity.internet_access.internet_access_observer.InternetAccessErrorHandler
@@ -17,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 const val HAS_INTERNET_ACCESS = "HAS_INTERNET_ACCESS"
 
@@ -24,9 +26,12 @@ const val HAS_INTERNET_ACCESS = "HAS_INTERNET_ACCESS"
 class InternetAccessDialogFragment : DialogFragment() {
 
     lateinit var binding: FragmentDialogInternetAccessBinding
-    private val internetAccessObserver by lazy { InternetAccessObserver() }
+
+    @Inject
+    lateinit var internetAccessObserver: InternetAccessObserver
     private val hasInternetAccessTag
         get() = parentFragmentManager.findFragmentByTag(HAS_INTERNET_ACCESS)
+    lateinit var internetAccessErrorHandler: InternetAccessErrorHandler
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?,
@@ -38,10 +43,12 @@ class InternetAccessDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        internetAccessErrorHandler = InternetAccessErrorHandler()
         internetAccessObserver.readInternetAccessExceptionError(::handleInternetAccessExceptionError)
         if (hasInternetAccessTag != null) {
             startCountDownTimer()
         }
+
     }
 
     override fun onStart() {
@@ -51,7 +58,7 @@ class InternetAccessDialogFragment : DialogFragment() {
     }
 
     private fun handleInternetAccessExceptionError(error: GeneralError) {
-        InternetAccessErrorHandler().handleInternetAccessError(requireActivity(), error)
+        internetAccessErrorHandler.handleInternetAccessError(requireActivity(), error)
     }
 
     private fun setDialogView() {
@@ -103,5 +110,9 @@ class InternetAccessDialogFragment : DialogFragment() {
 
     private fun handleApplicationRestart() {
         ProcessPhoenix.triggerRebirth(context)
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireActivity(), "$message", Toast.LENGTH_SHORT).show()
     }
 }

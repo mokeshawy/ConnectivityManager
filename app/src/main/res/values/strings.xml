@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">InternetAccess</string>
     <string name="msg_please_wait">Please wait...</string>
+    <string name="hello_world"><![CDATA[Hello World <font color="%s">%d</font>]]></string>
 </resources>
