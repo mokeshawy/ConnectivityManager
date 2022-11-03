@@ -15,3 +15,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "InternetAccess"
 include ':app'
+include ':Generec-Snackbar'
+project(':Generec-Snackbar').projectDir = new File('Generec-Snackbar/app')
+

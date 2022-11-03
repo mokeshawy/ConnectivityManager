@@ -99,4 +99,5 @@ dependencies {
 
     implementation 'com.jakewharton:process-phoenix:2.1.2'
 
+    implementation project(':Generec-Snackbar')
 }

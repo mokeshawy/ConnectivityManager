@@ -50,16 +50,16 @@ class InternetAccessObserver @Inject constructor(private val activity: Activity)
             httpURLConnection.connect()
             return httpURLConnection.responseCode == 200
         } catch (e: SocketTimeoutException) {
-            handleInternetExceptionError(getSocketTimeoutExceptionError(e))
+
             // the cellular is open but not have internet
         } catch (e: SSLHandshakeException) {
-            handleInternetExceptionError(getSSLHandshakeExceptionError(e))
+
             // the wifi is open but not have internet
         } catch (e: UnknownHostException) {
-            handleInternetExceptionError(getUnknownHostExceptionError(e))
+
             // the wifi and cellular is offline
         } catch (e: Exception) {
-            handleInternetExceptionError(getGeneralException(e))
+
         }
         return false
     }
