@@ -19,16 +19,19 @@ import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.net.ssl.SSLHandshakeException
 
+const val READ_TIME_OUT = 500
+const val CONNECT_TIME_OUT = 5000
+const val REQUEST_METHOD = "GET"
+
 class InternetAccessObserver @Inject constructor(private val activity: Activity) {
 
-    private var onInternetExceptionError: (GeneralError) -> Unit = {}
+    private var readInternetExceptionError: (GeneralError) -> Unit = {}
 
     fun readInternetAccessExceptionError(onInternetExceptionError: (GeneralError) -> Unit) {
-        this.onInternetExceptionError = onInternetExceptionError
+        this.readInternetExceptionError = onInternetExceptionError
     }
 
-
-    fun getObserveOnIntentAccess(): Flow<InternetAccessState> {
+    fun getInternetAccessResponse(): Flow<InternetAccessState> {
         return callbackFlow {
             withContext(Dispatchers.IO) {
                 when (isInternetAccess()) {
@@ -42,33 +45,32 @@ class InternetAccessObserver @Inject constructor(private val activity: Activity)
 
     private fun isInternetAccess(): Boolean {
         try {
-            val httpURLConnection =
+            val httpConnection =
                 URL("https://www.google.com").openConnection() as HttpURLConnection
-            httpURLConnection.readTimeout = 500
-            httpURLConnection.connectTimeout = 5000
-            httpURLConnection.requestMethod = "GET"
-            httpURLConnection.connect()
-            return httpURLConnection.responseCode == 200
+            httpConnection.apply {
+                readTimeout = READ_TIME_OUT
+                connectTimeout = CONNECT_TIME_OUT
+                requestMethod = REQUEST_METHOD
+                connect()
+                return responseCode == 200
+            }
         } catch (e: SocketTimeoutException) {
-
-            // the cellular is open but not have internet
+            handleInternetExceptionError(getSocketTimeoutExceptionError(e))
         } catch (e: SSLHandshakeException) {
-
-            // the wifi is open but not have internet
+            handleInternetExceptionError(getSSLHandshakeExceptionError(e))
         } catch (e: UnknownHostException) {
-
-            // the wifi and cellular is offline
+            handleInternetExceptionError(getUnknownHostExceptionError(e))
         } catch (e: Exception) {
-
+            handleInternetExceptionError(getGeneralException(e))
         }
         return false
     }
 
     private fun handleInternetExceptionError(error: GeneralError) {
-        onInternetExceptionError(error)
+        readInternetExceptionError(error)
     }
 
-    private fun getSocketTimeoutExceptionError(e: SocketTimeoutException) = GeneralError.I(
+    private fun getSocketTimeoutExceptionError(e: SocketTimeoutException) = GeneralError.E(
         errorCode = SOCKET_TIME_OUT_EXCEPTION,
         logMessage = "The internet not available in this device",
         extraData = e

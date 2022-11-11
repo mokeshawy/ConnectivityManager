@@ -83,7 +83,7 @@ class InternetAccessDialogFragment : DialogFragment() {
 
 
     private suspend fun observeOnInternetAccess() {
-        internetAccessObserver.getObserveOnIntentAccess().collect {
+        internetAccessObserver.getInternetAccessResponse().collect {
             when (it) {
                 AVAILABLE -> this.dismiss()
                 UNAVAILABLE -> {
