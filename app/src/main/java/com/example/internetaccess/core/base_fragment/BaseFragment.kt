@@ -18,8 +18,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkManager
 import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkStatus
-import com.example.internetaccess.core.error_handler.GeneralError
-import com.example.internetaccess.core.error_handler.GeneralErrorHandler
 import com.example.internetaccess.core.utils.showToast
 import javax.inject.Inject
 
@@ -74,15 +72,7 @@ abstract class BaseFragment<dataBinding : ViewDataBinding, viewModel : ViewModel
             setCustomView(layout)
         }
     }
-
-    fun GeneralError.handleError(callback: GeneralError.() -> Unit) {
-        (activity as? GeneralErrorHandler)?.handleError(this) {
-            when (errorCode) {
-
-            }
-        }
-        callback()
-    }
+    
 
     override fun onStart() {
         super.onStart()

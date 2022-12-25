@@ -31,7 +31,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:lottie_autoPlay="true"
                     app:lottie_loop="true"
-                    app:lottie_rawRes="@raw/nfc_scan_anim" />
+                    app:lottie_rawRes="@raw/loading_anim" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/messageTv"

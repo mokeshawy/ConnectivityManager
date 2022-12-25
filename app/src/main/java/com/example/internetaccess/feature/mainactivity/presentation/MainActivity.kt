@@ -2,7 +2,6 @@ package com.example.internetaccess.feature.mainactivity.presentation
 
 import android.net.Network
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.NavHostFragment
@@ -11,14 +10,12 @@ import com.example.internetaccess.core.connectivity.connectivity_manager.Network
 import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkStatus
 import com.example.internetaccess.core.connectivity.internet_access.ui.HAS_INTERNET_ACCESS
 import com.example.internetaccess.core.connectivity.internet_access.ui.InternetAccessDialogFragment
-import com.example.internetaccess.core.error_handler.GeneralError
-import com.example.internetaccess.core.error_handler.GeneralErrorHandler
 import com.example.internetaccess.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), GeneralErrorHandler, NetworkStatus {
+class MainActivity : AppCompatActivity(), NetworkStatus {
 
     lateinit var binding: ActivityMainBinding
     private val navHostFragment by lazy { supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment }
@@ -37,17 +34,6 @@ class MainActivity : AppCompatActivity(), GeneralErrorHandler, NetworkStatus {
 
     private fun getCurrentFragment() = navHostFragment.childFragmentManager.fragments.firstOrNull()
 
-    override fun handleError(error: GeneralError, callback: GeneralError.() -> Unit) {
-        error.logError()
-        when (error.errorCode) {
-
-        }
-        callback(error)
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(this, "$message", Toast.LENGTH_SHORT).show()
-    }
 
     override fun onAvailable(network: Network) {
         (getCurrentFragment() as? NetworkStatus)?.onAvailable(network)
@@ -65,7 +51,9 @@ class MainActivity : AppCompatActivity(), GeneralErrorHandler, NetworkStatus {
 
     private fun showInternetAccessDialogFragment() {
         if (internetAccessDialogFragment.isAdded) return
-        internetAccessDialogFragment.show(navHostFragment.parentFragmentManager,
-            HAS_INTERNET_ACCESS)
+        internetAccessDialogFragment.show(
+            navHostFragment.parentFragmentManager,
+            HAS_INTERNET_ACCESS
+        )
     }
 }
