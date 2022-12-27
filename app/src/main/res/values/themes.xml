@@ -14,11 +14,4 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <!-- custom dialog theme -->
-    <style name="CustomDialogTheme">
-        <item name="windowMinWidthMajor">0dp</item>
-        <item name="windowMinWidthMinor">0dp</item>
-        <item name="android:windowMinWidthMajor">0dp</item>
-        <item name="android:windowMinWidthMinor">0dp</item>
-    </style>
 </resources>

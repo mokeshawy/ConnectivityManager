@@ -11,19 +11,36 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import timber.log.Timber
+import androidx.lifecycle.lifecycleScope
+import com.example.internetaccess.core.connectivity.connectivity_error.ConnectivityError
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
+import java.net.URL
+import java.net.UnknownHostException
 import javax.inject.Inject
+import javax.net.ssl.SSLHandshakeException
+
+const val READ_TIME_OUT = 500
+const val CONNECT_TIME_OUT = 5000
+const val REQUEST_METHOD = "GET"
+const val PING_URL = "https://www.google.com"
 
 class NetworkManager @Inject constructor(private val activity: Activity) {
 
-    var isAvailable = false
     var isNetworkConnected = MutableLiveData(false)
     private var networkCapabilities: NetworkCapabilities? = null
     private var getNetworkRequest = getNetworkRequest()
     private var networkCallback = getNetworkCallBack()
     private val appCompatActivity get() = (activity as AppCompatActivity)
-    private val networkStatus by lazy { activity as NetworkStatus }
 
+    private var readInternetExceptionError: (ConnectivityError) -> Unit = {}
+
+    fun readInternetAccessExceptionError(onInternetExceptionError: (ConnectivityError) -> Unit) {
+        this.readInternetExceptionError = onInternetExceptionError
+    }
 
     init {
         registerLifecycle()
@@ -55,23 +72,15 @@ class NetworkManager @Inject constructor(private val activity: Activity) {
 
     private fun getNetworkCallBack(): ConnectivityManager.NetworkCallback {
         return object : ConnectivityManager.NetworkCallback() {
-
-
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                isAvailable = true
-                networkStatus.onAvailable(network)
                 networkCapabilities = getConnectivityManager().getNetworkCapabilities(network)
                 checkConnectInternetType()
             }
 
-
             override fun onLost(network: Network) {
                 super.onLost(network)
-                isAvailable = false
                 isNetworkConnected.postValue(false)
-                networkStatus.onLost(network)
-                checkDisconnectInternetType()
             }
         }
     }
@@ -83,38 +92,79 @@ class NetworkManager @Inject constructor(private val activity: Activity) {
     private fun checkConnectInternetType() {
         networkCapabilities?.let {
             when {
-                it.hasTransport(TRANSPORT_CELLULAR) -> {
-                    isNetworkConnected.postValue(true)
-                    Timber.e("Cellular is on")
-                    //cellular turn on
-                }
-                it.hasTransport(TRANSPORT_WIFI) -> {
-                    isNetworkConnected.postValue(true)
-                    Timber.e("Wifi is on")
-                    //wifi turn on
-                }
-                it.hasTransport(TRANSPORT_ETHERNET) -> {
-                    isNetworkConnected.postValue(true)
-                    Timber.e("Ethernet is on")
-                    //ether net turn on
+                it.hasTransport(TRANSPORT_CELLULAR) -> getInternetAccessResponse()
+                it.hasTransport(TRANSPORT_WIFI) -> getInternetAccessResponse()
+                it.hasTransport(TRANSPORT_ETHERNET) -> getInternetAccessResponse()
+            }
+        }
+    }
+
+    private fun getInternetAccessResponse() {
+        appCompatActivity.lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                when (isInternetAccess()) {
+                    true -> isNetworkConnected.postValue(true)
+                    false -> isNetworkConnected.postValue(false)
                 }
             }
         }
     }
 
-    private fun checkDisconnectInternetType() {
-        networkCapabilities?.let {
-            when {
-                it.hasTransport(TRANSPORT_CELLULAR) -> {
-                    //cellular turn off
-                }
-                it.hasTransport(TRANSPORT_WIFI) -> {
-                    //wifi turn off
-                }
-                it.hasTransport(TRANSPORT_ETHERNET) -> {
-                    //here ether net turn off
-                }
+
+    private fun isInternetAccess(): Boolean {
+        try {
+            val httpConnection = URL(PING_URL).openConnection() as HttpURLConnection
+            httpConnection.apply {
+                readTimeout = READ_TIME_OUT
+                connectTimeout = CONNECT_TIME_OUT
+                requestMethod = REQUEST_METHOD
+                connect()
+                return responseCode == 200
             }
+        } catch (e: SocketTimeoutException) {
+            handleInternetExceptionError(getSocketTimeoutExceptionError(e))
+        } catch (e: SSLHandshakeException) {
+            handleInternetExceptionError(getSSLHandshakeExceptionError(e))
+        } catch (e: UnknownHostException) {
+            handleInternetExceptionError(getUnknownHostExceptionError(e))
+        } catch (e: Exception) {
+            handleInternetExceptionError(getGeneralException(e))
         }
+        return false
+    }
+
+    private fun handleInternetExceptionError(error: ConnectivityError) {
+        readInternetExceptionError(error)
+    }
+
+    private fun getSocketTimeoutExceptionError(e: SocketTimeoutException) = ConnectivityError.E(
+        errorCode = SOCKET_TIME_OUT_EXCEPTION,
+        logMessage = "The internet not available in this device",
+        exception = e
+    )
+
+    private fun getSSLHandshakeExceptionError(e: SSLHandshakeException) = ConnectivityError.E(
+        errorCode = SSL_HANDSHAKE_EXCEPTION,
+        logMessage = "The internet not available in this device",
+        exception = e
+    )
+
+    private fun getUnknownHostExceptionError(e: UnknownHostException) = ConnectivityError.E(
+        errorCode = UNKNOWN_HOST_EXCEPTION,
+        logMessage = "Network is disconnect in this device",
+        exception = e
+    )
+
+    private fun getGeneralException(e: Exception) = ConnectivityError.E(
+        errorCode = GENERAL_EXCEPTION,
+        logMessage = "General Exception",
+        exception = e
+    )
+
+    companion object {
+        const val SOCKET_TIME_OUT_EXCEPTION = "SOCKET_TIME_OUT_EXCEPTION"
+        const val SSL_HANDSHAKE_EXCEPTION = "SSL_HANDSHAKE_EXCEPTION"
+        const val UNKNOWN_HOST_EXCEPTION = "UNKNOWN_HOST_EXCEPTION"
+        const val GENERAL_EXCEPTION = "GENERAL_EXCEPTION"
     }
 }

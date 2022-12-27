@@ -13,5 +13,4 @@ class NetworkManagerModule {
 
     @Provides
     fun provideNetworkManager(activity: Activity) = NetworkManager(activity)
-
 }
