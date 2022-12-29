@@ -22,8 +22,8 @@ class NetworkManager @Inject constructor(
     private val internetAccessObserver: InternetAccessObserver
 ) {
 
-    private var _isNetworkConnectedLiveData = MutableLiveData(false)
-    val isNetworkConnectedLiveData: LiveData<Boolean> = _isNetworkConnectedLiveData
+    private var _isNetworkConnected = MutableLiveData(false)
+    val isNetworkConnected: LiveData<Boolean> = _isNetworkConnected
 
     private var networkCapabilities: NetworkCapabilities? = null
     private var getNetworkRequest = getNetworkRequest()
@@ -47,8 +47,8 @@ class NetworkManager @Inject constructor(
     }
 
     private fun observeOnIsInternetAvailable() {
-        internetAccessObserver.isInternetAvailableLiveData.observeForever {
-            _isNetworkConnectedLiveData.postValue(it)
+        internetAccessObserver.isInternetAvailable.observeForever {
+            _isNetworkConnected.postValue(it)
         }
     }
 
@@ -71,7 +71,7 @@ class NetworkManager @Inject constructor(
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                _isNetworkConnectedLiveData.postValue(false)
+                _isNetworkConnected.postValue(false)
             }
         }
     }

@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
 
     // Observe on network connected
     private fun observeOnIsNetworkConnected() {
-        networkManager.isNetworkConnectedLiveData.observeForever {
+        networkManager.isNetworkConnected.observeForever {
             binding.networkStatusTv.text = if (it) {
                 resources.getString(R.string.internetIsAvailable)
             } else {
