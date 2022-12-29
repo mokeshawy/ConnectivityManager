@@ -2,6 +2,7 @@ package com.example.internetaccess.core.connectivity.di
 
 import android.app.Activity
 import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkManager
+import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,5 +13,9 @@ import dagger.hilt.android.components.ActivityComponent
 class NetworkManagerModule {
 
     @Provides
-    fun provideNetworkManager(activity: Activity) = NetworkManager(activity)
+    fun provideNetworkManager(activity: Activity, internetAccessObserver: InternetAccessObserver) =
+        NetworkManager(activity, internetAccessObserver)
+
+    @Provides
+    fun provideInternetAccessObserver(activity: Activity) = InternetAccessObserver(activity)
 }
