@@ -49,9 +49,9 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
 
     // If you need handle internet access exception error { Implement InternetAccessErrorHandler }
     // And check on error code such as this example
-    override fun readInternetAccessExceptionError(errorCode: String, exception: Exception) {
+    override fun readInternetAccessExceptionError(errorType: String, exception: Exception) {
         lifecycleScope.launch {
-            when (errorCode) {
+            when (errorType) {
                 SOCKET_TIME_OUT_EXCEPTION -> showShortToast("$exception")
                 SSL_HANDSHAKE_EXCEPTION -> showShortToast("$exception")
                 UNKNOWN_HOST_EXCEPTION -> showShortToast("$exception")

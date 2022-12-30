@@ -58,8 +58,8 @@ class InternetAccessObserver @Inject constructor(private val activity: Activity)
         return false
     }
 
-    private fun getInternetExceptionError(errorCode: String, exception: Exception) =
-        internetAccessErrorHandler?.readInternetAccessExceptionError(errorCode, exception)
+    private fun getInternetExceptionError(errorType: String, exception: Exception) =
+        internetAccessErrorHandler?.readInternetAccessExceptionError(errorType, exception)
 
 
     companion object {
