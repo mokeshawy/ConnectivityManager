@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
-import com.example.internetaccess.core.connectivity.connectivity_error.ConnectivityError
 import com.example.internetaccess.core.connectivity.connectivity_manager.CONNECT_TIME_OUT
 import com.example.internetaccess.core.connectivity.connectivity_manager.PING_URL
 import com.example.internetaccess.core.connectivity.connectivity_manager.READ_TIME_OUT
@@ -50,44 +49,20 @@ class InternetAccessObserver @Inject constructor(private val activity: Activity)
                 return responseCode == 200
             }
         } catch (e: SocketTimeoutException) {
-            handleInternetExceptionError(getSocketTimeoutExceptionError(e))
+            getInternetExceptionError(SOCKET_TIME_OUT_EXCEPTION, e)
         } catch (e: SSLHandshakeException) {
-            handleInternetExceptionError(getSSLHandshakeExceptionError(e))
+            getInternetExceptionError(SSL_HANDSHAKE_EXCEPTION, e)
         } catch (e: UnknownHostException) {
-            handleInternetExceptionError(getUnknownHostExceptionError(e))
+            getInternetExceptionError(UNKNOWN_HOST_EXCEPTION, e)
         } catch (e: Exception) {
-            handleInternetExceptionError(getGeneralException(e))
+            getInternetExceptionError(GENERAL_EXCEPTION, e)
         }
         return false
     }
 
-    private fun handleInternetExceptionError(error: ConnectivityError) {
-        internetAccessErrorHandler?.readInternetAccessExceptionError(error)
+    private fun getInternetExceptionError(errorCode: String, exception: Exception) {
+        internetAccessErrorHandler?.readInternetAccessExceptionError(errorCode, exception)
     }
-
-    private fun getSocketTimeoutExceptionError(e: SocketTimeoutException) = ConnectivityError.E(
-        errorCode = SOCKET_TIME_OUT_EXCEPTION,
-        logMessage = "The internet not available in this device",
-        exception = e
-    )
-
-    private fun getSSLHandshakeExceptionError(e: SSLHandshakeException) = ConnectivityError.E(
-        errorCode = SSL_HANDSHAKE_EXCEPTION,
-        logMessage = "The internet not available in this device",
-        exception = e
-    )
-
-    private fun getUnknownHostExceptionError(e: UnknownHostException) = ConnectivityError.E(
-        errorCode = UNKNOWN_HOST_EXCEPTION,
-        logMessage = "Network is disconnect in this device",
-        exception = e
-    )
-
-    private fun getGeneralException(e: Exception) = ConnectivityError.E(
-        errorCode = GENERAL_EXCEPTION,
-        logMessage = "General Exception",
-        exception = e
-    )
 
     companion object {
         const val SOCKET_TIME_OUT_EXCEPTION = "SOCKET_TIME_OUT_EXCEPTION"

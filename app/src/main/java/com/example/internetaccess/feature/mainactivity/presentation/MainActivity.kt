@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.example.internetaccess.R
-import com.example.internetaccess.core.connectivity.connectivity_error.ConnectivityError
 import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkManager
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessErrorHandler
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver.Companion.GENERAL_EXCEPTION
@@ -51,13 +50,13 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
 
     // If you need handle internet access exception { Implement InternetAccessErrorHandler }
     // And check on error code such as this example
-    override fun readInternetAccessExceptionError(error: ConnectivityError) {
+    override fun readInternetAccessExceptionError(errorCode: String, exception: Exception) {
         lifecycleScope.launchWhenResumed {
-            when (error.errorCode) {
-                SOCKET_TIME_OUT_EXCEPTION -> showShortToast(SOCKET_TIME_OUT_EXCEPTION)
-                SSL_HANDSHAKE_EXCEPTION -> showShortToast(SSL_HANDSHAKE_EXCEPTION)
-                UNKNOWN_HOST_EXCEPTION -> showShortToast(UNKNOWN_HOST_EXCEPTION)
-                GENERAL_EXCEPTION -> showShortToast(GENERAL_EXCEPTION)
+            when (errorCode) {
+                SOCKET_TIME_OUT_EXCEPTION -> showShortToast("$exception")
+                SSL_HANDSHAKE_EXCEPTION -> showShortToast("$exception")
+                UNKNOWN_HOST_EXCEPTION -> showShortToast("$exception")
+                GENERAL_EXCEPTION -> showShortToast("$exception")
             }
         }
     }
