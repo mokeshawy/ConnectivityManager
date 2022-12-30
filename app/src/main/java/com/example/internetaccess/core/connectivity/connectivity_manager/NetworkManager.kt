@@ -42,9 +42,9 @@ class NetworkManager @Inject constructor(
     }
 
     private fun observeOnIsInternetAvailable() {
-        internetAccessObserver.isInternetAvailable.observeForever {
+        internetAccessObserver.isInternetAvailable.observe(appCompatActivity, Observer {
             _isNetworkConnected.postValue(it)
-        }
+        })
     }
 
     private fun getNetworkRequest(): NetworkRequest {
@@ -66,7 +66,7 @@ class NetworkManager @Inject constructor(
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                _isNetworkConnected.postValue(false)
+                getInternetAccessResponse()
             }
         }
     }
@@ -78,10 +78,13 @@ class NetworkManager @Inject constructor(
     private fun checkConnectInternetType() {
         networkCapabilities?.let {
             when {
-                it.hasTransport(TRANSPORT_CELLULAR) -> internetAccessObserver.getInternetAccessResponse()
-                it.hasTransport(TRANSPORT_WIFI) -> internetAccessObserver.getInternetAccessResponse()
-                it.hasTransport(TRANSPORT_ETHERNET) -> internetAccessObserver.getInternetAccessResponse()
+                it.hasTransport(TRANSPORT_CELLULAR) ->getInternetAccessResponse()
+                it.hasTransport(TRANSPORT_WIFI) -> getInternetAccessResponse()
+                it.hasTransport(TRANSPORT_ETHERNET) -> getInternetAccessResponse()
             }
         }
     }
+
+
+    private fun getInternetAccessResponse() = internetAccessObserver.getInternetAccessResponse()
 }

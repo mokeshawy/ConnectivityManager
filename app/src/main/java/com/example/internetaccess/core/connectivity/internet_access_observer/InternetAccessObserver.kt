@@ -30,10 +30,7 @@ class InternetAccessObserver @Inject constructor(private val activity: Activity)
     fun getInternetAccessResponse() {
         (activity as AppCompatActivity).lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                when (isInternetAccess()) {
-                    true -> _isInternetAvailable.postValue(true)
-                    false -> _isInternetAvailable.postValue(false)
-                }
+                _isInternetAvailable.postValue(isInternetAccess())
             }
         }
     }
@@ -61,9 +58,9 @@ class InternetAccessObserver @Inject constructor(private val activity: Activity)
         return false
     }
 
-    private fun getInternetExceptionError(errorCode: String, exception: Exception) {
+    private fun getInternetExceptionError(errorCode: String, exception: Exception) =
         internetAccessErrorHandler?.readInternetAccessExceptionError(errorCode, exception)
-    }
+
 
     companion object {
         const val SOCKET_TIME_OUT_EXCEPTION = "SOCKET_TIME_OUT_EXCEPTION"

@@ -14,6 +14,7 @@ import com.example.internetaccess.core.connectivity.internet_access_observer.Int
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver.Companion.UNKNOWN_HOST_EXCEPTION
 import com.example.internetaccess.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
     private fun handleNetworkRegistration() = networkManager.handleNetworkCallbackRegistration()
 
     private fun observeOnIsNetworkConnected() {
-        networkManager.isNetworkConnected.observeForever {
+        networkManager.isNetworkConnected.observe(this) {
             binding.networkStatusTv.text = if (it) {
                 resources.getString(R.string.internetIsAvailable)
             } else {
@@ -49,7 +50,7 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
     // If you need handle internet access exception error { Implement InternetAccessErrorHandler }
     // And check on error code such as this example
     override fun readInternetAccessExceptionError(errorCode: String, exception: Exception) {
-        lifecycleScope.launchWhenResumed {
+        lifecycleScope.launch {
             when (errorCode) {
                 SOCKET_TIME_OUT_EXCEPTION -> showShortToast("$exception")
                 SSL_HANDSHAKE_EXCEPTION -> showShortToast("$exception")
