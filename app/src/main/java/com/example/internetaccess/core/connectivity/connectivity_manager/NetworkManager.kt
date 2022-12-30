@@ -12,11 +12,6 @@ import androidx.lifecycle.*
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver
 import javax.inject.Inject
 
-const val READ_TIME_OUT = 500
-const val CONNECT_TIME_OUT = 5000
-const val REQUEST_METHOD = "GET"
-const val PING_URL = "https://www.google.com"
-
 class NetworkManager @Inject constructor(
     private val activity: Activity,
     private val internetAccessObserver: InternetAccessObserver
@@ -31,7 +26,7 @@ class NetworkManager @Inject constructor(
     private val appCompatActivity get() = (activity as AppCompatActivity)
 
 
-    fun registerNetworkManagerLifecycle() {
+    fun handleNetworkCallbackRegistration() {
         appCompatActivity.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)

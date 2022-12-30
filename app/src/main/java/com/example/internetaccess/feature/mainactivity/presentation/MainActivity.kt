@@ -20,23 +20,22 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
 
     private lateinit var binding: ActivityMainBinding
-
-    // get network manager
     @Inject
     lateinit var networkManager: NetworkManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
         hideActionBar()
-        // register network manager lifecycle
-        networkManager.registerNetworkManagerLifecycle()
+        handleNetworkRegistration()
         observeOnIsNetworkConnected()
     }
 
     private fun hideActionBar() = supportActionBar?.hide()
 
-    // Observe on network connected
+    private fun handleNetworkRegistration() = networkManager.handleNetworkCallbackRegistration()
+
     private fun observeOnIsNetworkConnected() {
         networkManager.isNetworkConnected.observeForever {
             binding.networkStatusTv.text = if (it) {
@@ -47,8 +46,7 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
         }
     }
 
-
-    // If you need handle internet access exception { Implement InternetAccessErrorHandler }
+    // If you need handle internet access exception error { Implement InternetAccessErrorHandler }
     // And check on error code such as this example
     override fun readInternetAccessExceptionError(errorCode: String, exception: Exception) {
         lifecycleScope.launchWhenResumed {

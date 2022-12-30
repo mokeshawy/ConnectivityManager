@@ -5,10 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
-import com.example.internetaccess.core.connectivity.connectivity_manager.CONNECT_TIME_OUT
-import com.example.internetaccess.core.connectivity.connectivity_manager.PING_URL
-import com.example.internetaccess.core.connectivity.connectivity_manager.READ_TIME_OUT
-import com.example.internetaccess.core.connectivity.connectivity_manager.REQUEST_METHOD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -18,6 +14,11 @@ import java.net.URL
 import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.net.ssl.SSLHandshakeException
+
+const val READ_TIME_OUT = 500
+const val CONNECT_TIME_OUT = 5000
+const val REQUEST_METHOD = "GET"
+const val PING_URL = "https://www.google.com"
 
 class InternetAccessObserver @Inject constructor(private val activity: Activity) {
 
