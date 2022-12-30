@@ -27,7 +27,7 @@ android {
         }
 
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -111,9 +111,5 @@ dependencies {
     implementation "com.intuit.sdp:sdp-android:$scalableUnit"
     // ssp of font
     implementation "com.intuit.ssp:ssp-android:$scalableUnit"
-    // Lottie
-    implementation 'com.airbnb.android:lottie:5.2.0'
-
-    implementation 'com.jakewharton:process-phoenix:2.1.2'
 
 }
