@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.example.internetaccess.R
-import com.example.internetaccess.core.connectivity.connectivity_manager.NetworkManager
+import com.example.internetaccess.core.connectivity.connectivity_manager.ConnectivitykManager
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessErrorHandler
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver.Companion.GENERAL_EXCEPTION
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver.Companion.SOCKET_TIME_OUT_EXCEPTION
@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
 
     private lateinit var binding: ActivityMainBinding
     @Inject
-    lateinit var networkManager: NetworkManager
+    lateinit var connectivityManager: ConnectivitykManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,10 +35,10 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
 
     private fun hideActionBar() = supportActionBar?.hide()
 
-    private fun handleNetworkRegistration() = networkManager.handleNetworkCallbackRegistration()
+    private fun handleNetworkRegistration() = connectivityManager.handleNetworkCallbackRegistration()
 
     private fun observeOnIsNetworkConnected() {
-        networkManager.isNetworkConnected.observe(this) {
+        connectivityManager.isNetworkConnected.observe(this) {
             binding.networkStatusTv.text = if (it) {
                 resources.getString(R.string.internetIsAvailable)
             } else {

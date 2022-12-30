@@ -12,7 +12,7 @@ import androidx.lifecycle.*
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver
 import javax.inject.Inject
 
-class NetworkManager @Inject constructor(
+class ConnectivitykManager @Inject constructor(
     private val activity: Activity,
     private val internetAccessObserver: InternetAccessObserver
 ) {
