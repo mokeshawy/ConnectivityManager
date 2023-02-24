@@ -29,13 +29,10 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         hideActionBar()
-        handleNetworkRegistration()
         observeOnIsNetworkConnected()
     }
 
     private fun hideActionBar() = supportActionBar?.hide()
-
-    private fun handleNetworkRegistration() = connectivityManager.handleNetworkCallbackRegistration()
 
     private fun observeOnIsNetworkConnected() {
         connectivityManager.isNetworkConnected.observe(this) {

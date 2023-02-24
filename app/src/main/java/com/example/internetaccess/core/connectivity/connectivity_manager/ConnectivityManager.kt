@@ -26,7 +26,11 @@ class ConnectivityManager @Inject constructor(
     private val appCompatActivity get() = (activity as AppCompatActivity)
 
 
-    fun handleNetworkCallbackRegistration() {
+    init {
+        handleNetworkCallbackRegistration()
+    }
+
+    private fun handleNetworkCallbackRegistration() {
         appCompatActivity.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
