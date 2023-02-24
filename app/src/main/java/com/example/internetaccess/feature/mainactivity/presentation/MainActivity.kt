@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.example.internetaccess.R
-import com.example.internetaccess.core.connectivity.connectivity_manager.ConnectivitykManager
+import com.example.internetaccess.core.connectivity.connectivity_manager.ConnectivityManager
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessErrorHandler
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver.Companion.GENERAL_EXCEPTION
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver.Companion.SOCKET_TIME_OUT_EXCEPTION
@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
 
     private lateinit var binding: ActivityMainBinding
     @Inject
-    lateinit var connectivityManager: ConnectivitykManager
+    lateinit var connectivityManager: ConnectivityManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
