@@ -10,6 +10,8 @@ import android.net.NetworkRequest
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ConnectivityManager @Inject constructor(
@@ -17,9 +19,10 @@ class ConnectivityManager @Inject constructor(
     private val internetAccessObserver: InternetAccessObserver
 ) {
 
-    private var _isNetworkConnected = MutableLiveData(false)
+    private var _isNetworkConnected = MutableLiveData<Boolean>()
     val isNetworkConnected: LiveData<Boolean> = _isNetworkConnected
 
+    private var isNetworkRegister: Boolean = false
     private var networkCapabilities: NetworkCapabilities? = null
     private var getNetworkRequest = getNetworkRequest()
     private var networkCallback = getNetworkCallBack()
@@ -35,6 +38,7 @@ class ConnectivityManager @Inject constructor(
 
             override fun onCreate(owner: LifecycleOwner) {
                 super.onCreate(owner)
+                handleUnregisteredNetworkState(owner)
                 getConnectivityManager().registerNetworkCallback(getNetworkRequest, networkCallback)
                 observeOnIsInternetAvailable()
             }
@@ -44,6 +48,13 @@ class ConnectivityManager @Inject constructor(
                 getConnectivityManager().unregisterNetworkCallback(networkCallback)
             }
         })
+    }
+
+    private fun handleUnregisteredNetworkState(owner: LifecycleOwner) {
+        owner.lifecycleScope.launch {
+            delay(500)
+            if (!isNetworkRegister) getInternetAccessResponse()
+        }
     }
 
     private fun observeOnIsInternetAvailable() {
@@ -65,12 +76,14 @@ class ConnectivityManager @Inject constructor(
         return object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
+                isNetworkRegister = true
                 networkCapabilities = getConnectivityManager().getNetworkCapabilities(network)
                 checkConnectInternetType()
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
+                isNetworkRegister = true
                 getInternetAccessResponse()
             }
         }
@@ -83,7 +96,7 @@ class ConnectivityManager @Inject constructor(
     private fun checkConnectInternetType() {
         networkCapabilities?.let {
             when {
-                it.hasTransport(TRANSPORT_CELLULAR) ->getInternetAccessResponse()
+                it.hasTransport(TRANSPORT_CELLULAR) -> getInternetAccessResponse()
                 it.hasTransport(TRANSPORT_WIFI) -> getInternetAccessResponse()
                 it.hasTransport(TRANSPORT_ETHERNET) -> getInternetAccessResponse()
             }

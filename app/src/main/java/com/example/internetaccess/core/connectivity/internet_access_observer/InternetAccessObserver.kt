@@ -24,7 +24,7 @@ class InternetAccessObserver @Inject constructor(private val activity: Activity)
 
     private val internetAccessErrorHandler = (activity as? InternetAccessErrorHandler)
 
-    private val _isInternetAvailable = MutableLiveData(false)
+    private val _isInternetAvailable = MutableLiveData<Boolean>()
     val isInternetAvailable: LiveData<Boolean> = _isInternetAvailable
 
     fun getInternetAccessResponse() {
