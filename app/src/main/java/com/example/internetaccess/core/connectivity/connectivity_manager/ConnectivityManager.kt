@@ -32,14 +32,15 @@ class ConnectivityManager @Inject constructor(
 
     private fun handleNetworkCallbackRegistration() {
         appCompatActivity.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onResume(owner: LifecycleOwner) {
-                super.onResume(owner)
+
+            override fun onCreate(owner: LifecycleOwner) {
+                super.onCreate(owner)
                 getConnectivityManager().registerNetworkCallback(getNetworkRequest, networkCallback)
                 observeOnIsInternetAvailable()
             }
 
-            override fun onPause(owner: LifecycleOwner) {
-                super.onPause(owner)
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
                 getConnectivityManager().unregisterNetworkCallback(networkCallback)
             }
         })
