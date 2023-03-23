@@ -20,7 +20,6 @@ class ConnectivityManager @Inject constructor(
     private var _isNetworkConnected = MutableLiveData<Boolean>()
     val isNetworkConnected: LiveData<Boolean> = _isNetworkConnected
 
-    private var isNetworkRegister: Boolean = false
     private var networkCapabilities: NetworkCapabilities? = null
     private var getNetworkRequest = getNetworkRequest()
     private var networkCallback = getNetworkCallBack()
@@ -65,14 +64,12 @@ class ConnectivityManager @Inject constructor(
         return object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                isNetworkRegister = true
                 networkCapabilities = getConnectivityManager().getNetworkCapabilities(network)
                 checkConnectInternetType()
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                isNetworkRegister = true
                 getInternetAccessResponse()
             }
         }
