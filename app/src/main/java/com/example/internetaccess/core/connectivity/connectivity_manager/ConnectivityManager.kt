@@ -7,16 +7,14 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkCapabilities.*
 import android.net.NetworkRequest
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ConnectivityManager @Inject constructor(
-    private val activity: Activity,
-    private val internetAccessObserver: InternetAccessObserver
+    private val activity: Activity, private val internetAccessObserver: InternetAccessObserver
 ) {
 
     private var _isNetworkConnected = MutableLiveData<Boolean>()
@@ -38,7 +36,7 @@ class ConnectivityManager @Inject constructor(
 
             override fun onCreate(owner: LifecycleOwner) {
                 super.onCreate(owner)
-                handleUnregisteredNetworkState(owner)
+                handleUnregisteredNetworkState()
                 getConnectivityManager().registerNetworkCallback(getNetworkRequest, networkCallback)
                 observeOnIsInternetAvailable()
             }
@@ -50,12 +48,6 @@ class ConnectivityManager @Inject constructor(
         })
     }
 
-    private fun handleUnregisteredNetworkState(owner: LifecycleOwner) {
-        owner.lifecycleScope.launch {
-            delay(500)
-            if (!isNetworkRegister) getInternetAccessResponse()
-        }
-    }
 
     private fun observeOnIsInternetAvailable() {
         internetAccessObserver.isInternetAvailable.observe(appCompatActivity, Observer {
@@ -64,11 +56,8 @@ class ConnectivityManager @Inject constructor(
     }
 
     private fun getNetworkRequest(): NetworkRequest {
-        return NetworkRequest.Builder()
-            .addTransportType(TRANSPORT_WIFI)
-            .addTransportType(TRANSPORT_CELLULAR)
-            .addTransportType(TRANSPORT_ETHERNET)
-            .build()
+        return NetworkRequest.Builder().addTransportType(TRANSPORT_WIFI)
+            .addTransportType(TRANSPORT_CELLULAR).addTransportType(TRANSPORT_ETHERNET).build()
     }
 
 
@@ -88,6 +77,17 @@ class ConnectivityManager @Inject constructor(
             }
         }
     }
+
+    private fun handleUnregisteredNetworkState() {
+        if (getActiveNetwork() == null) getInternetAccessResponse()
+    }
+
+    private fun getActiveNetwork() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        getConnectivityManager().getNetworkCapabilities(getConnectivityManager().activeNetwork)
+    } else {
+        null
+    }
+
 
     private fun getConnectivityManager() =
         activity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
