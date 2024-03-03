@@ -21,6 +21,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), InternetAccessErrorHandler {
 
     private lateinit var binding: ActivityMainBinding
+
     @Inject
     lateinit var connectivityManager: ConnectivityManager
 

@@ -1,6 +1,7 @@
 package com.example.internetaccess.core.connectivity.internet_access_observer
 
 import android.app.Activity
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
+import java.net.InetAddress
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
@@ -18,7 +20,7 @@ import javax.net.ssl.SSLHandshakeException
 const val READ_TIME_OUT = 500
 const val CONNECT_TIME_OUT = 5000
 const val REQUEST_METHOD = "GET"
-const val PING_URL = "https://www.google.com"
+const val PING_URL = "www.google.com"
 
 class InternetAccessObserver @Inject constructor(private val activity: Activity) {
 
@@ -38,7 +40,10 @@ class InternetAccessObserver @Inject constructor(private val activity: Activity)
 
     private fun isInternetAccess(): Boolean {
         try {
-            val httpConnection = URL(PING_URL).openConnection() as HttpURLConnection
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+                return InetAddress.getByName(PING_URL).isReachable(CONNECT_TIME_OUT)
+            }
+            val httpConnection = URL("https://$PING_URL").openConnection() as HttpURLConnection
             httpConnection.apply {
                 readTimeout = READ_TIME_OUT
                 connectTimeout = CONNECT_TIME_OUT
