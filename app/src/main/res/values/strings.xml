@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">InternetAccess</string>
-    <string name="please_wait">Please wait...</string>
-    <string name="internetIsAvailable">Internet is available</string>
-    <string name="internetIsNotAvailable">Internet is not available</string>
-</resources>

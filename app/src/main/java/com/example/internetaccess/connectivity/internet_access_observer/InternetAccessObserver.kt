@@ -1,12 +1,10 @@
-package com.example.internetaccess.core.connectivity.internet_access_observer
+package com.example.internetaccess.connectivity.internet_access_observer
 
-import android.app.Activity
+
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
@@ -17,23 +15,22 @@ import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.net.ssl.SSLHandshakeException
 
+
 const val READ_TIME_OUT = 500
 const val CONNECT_TIME_OUT = 5000
 const val REQUEST_METHOD = "GET"
 const val PING_URL = "www.google.com"
 
-class InternetAccessObserver @Inject constructor(private val activity: Activity) {
+class InternetAccessObserver @Inject constructor() :
+    InternetAccessErrorHandler {
 
-    private val internetAccessErrorHandler = (activity as? InternetAccessErrorHandler)
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private val _isInternetAvailable = MutableLiveData<Boolean>()
-    val isInternetAvailable: LiveData<Boolean> = _isInternetAvailable
+    var isInternetAvailable: ( suspend (Boolean) -> Unit)? = null
 
-    fun getInternetAccessResponse() {
-        (activity as AppCompatActivity).lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                _isInternetAvailable.postValue(isInternetAccess())
-            }
+    fun getInternetAccessResponse() = applicationScope.launch {
+        withContext(Dispatchers.IO) {
+            isInternetAvailable?.invoke(isInternetAccess())
         }
     }
 
@@ -52,19 +49,19 @@ class InternetAccessObserver @Inject constructor(private val activity: Activity)
                 return responseCode == 200
             }
         } catch (e: SocketTimeoutException) {
-            getInternetExceptionError(SOCKET_TIME_OUT_EXCEPTION, e)
+            readInternetAccessExceptionError(SOCKET_TIME_OUT_EXCEPTION, e)
         } catch (e: SSLHandshakeException) {
-            getInternetExceptionError(SSL_HANDSHAKE_EXCEPTION, e)
+            readInternetAccessExceptionError(SSL_HANDSHAKE_EXCEPTION, e)
         } catch (e: UnknownHostException) {
-            getInternetExceptionError(UNKNOWN_HOST_EXCEPTION, e)
+            readInternetAccessExceptionError(UNKNOWN_HOST_EXCEPTION, e)
         } catch (e: Exception) {
-            getInternetExceptionError(GENERAL_EXCEPTION, e)
+            readInternetAccessExceptionError(GENERAL_EXCEPTION, e)
         }
         return false
     }
 
-    private fun getInternetExceptionError(errorType: String, exception: Exception) =
-        internetAccessErrorHandler?.readInternetAccessExceptionError(errorType, exception)
+
+    override fun readInternetAccessExceptionError(errorType: String, exception: Exception) {}
 
 
     companion object {

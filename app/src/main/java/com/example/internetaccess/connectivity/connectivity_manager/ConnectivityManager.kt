@@ -1,43 +1,47 @@
-package com.example.internetaccess.core.connectivity.connectivity_manager
+package com.example.internetaccess.connectivity.connectivity_manager
 
-import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkCapabilities.*
+import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
+import android.net.NetworkCapabilities.TRANSPORT_ETHERNET
+import android.net.NetworkCapabilities.TRANSPORT_WIFI
 import android.net.NetworkRequest
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.*
-import com.example.internetaccess.core.connectivity.internet_access_observer.InternetAccessObserver
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import com.example.internetaccess.connectivity.internet_access_observer.InternetAccessObserver
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ConnectivityManager @Inject constructor(
-    private val activity: Activity, private val internetAccessObserver: InternetAccessObserver
-) {
+    @param:ApplicationContext private val context: Context,
+    private val internetAccessObserver: InternetAccessObserver,
+) : ConnectivityHelper {
 
-    private var _isNetworkConnected = MutableLiveData<Boolean>()
-    val isNetworkConnected: LiveData<Boolean> = _isNetworkConnected
+    private var _isNetworkConnected = MutableStateFlow<Boolean>(false)
+    override val isNetworkConnected: StateFlow<Boolean> = _isNetworkConnected
 
     private var networkCapabilities: NetworkCapabilities? = null
     private var getNetworkRequest = getNetworkRequest()
     private var networkCallback = getNetworkCallBack()
-    private val appCompatActivity get() = (activity as AppCompatActivity)
-
 
     init {
-        handleNetworkCallbackRegistration()
+        observeAppLifecycle()
     }
 
-    private fun handleNetworkCallbackRegistration() {
-        appCompatActivity.lifecycle.addObserver(object : DefaultLifecycleObserver {
-
+    private fun observeAppLifecycle() =
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
                 super.onCreate(owner)
-                handleUnregisteredNetworkState()
                 getConnectivityManager().registerNetworkCallback(getNetworkRequest, networkCallback)
-                observeOnIsInternetAvailable()
+                handleUnregisteredNetworkState()
+                owner.lifecycleScope.launch { observeOnIsInternetAvailable() }
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
@@ -45,13 +49,12 @@ class ConnectivityManager @Inject constructor(
                 getConnectivityManager().unregisterNetworkCallback(networkCallback)
             }
         })
-    }
 
 
     private fun observeOnIsInternetAvailable() {
-        internetAccessObserver.isInternetAvailable.observe(appCompatActivity, Observer {
-            _isNetworkConnected.postValue(it)
-        })
+        internetAccessObserver.isInternetAvailable = {
+            _isNetworkConnected.emit(it)
+        }
     }
 
     private fun getNetworkRequest(): NetworkRequest {
@@ -79,15 +82,12 @@ class ConnectivityManager @Inject constructor(
         if (getActiveNetwork() == null) getInternetAccessResponse()
     }
 
-    private fun getActiveNetwork() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    private fun getActiveNetwork() =
         getConnectivityManager().getNetworkCapabilities(getConnectivityManager().activeNetwork)
-    } else {
-        null
-    }
 
 
     private fun getConnectivityManager() =
-        activity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
 
     private fun checkConnectInternetType() {
