@@ -4,19 +4,15 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
-import android.net.NetworkCapabilities.TRANSPORT_ETHERNET
-import android.net.NetworkCapabilities.TRANSPORT_WIFI
 import android.net.NetworkRequest
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import com.example.internetaccess.connectivity.internet_access_observer.InternetAccessObserver
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 class ConnectivityManager @Inject constructor(
@@ -24,82 +20,63 @@ class ConnectivityManager @Inject constructor(
     private val internetAccessObserver: InternetAccessObserver,
 ) : ConnectivityHelper {
 
-    private var _isNetworkConnected = MutableStateFlow<Boolean>(false)
-    override val isNetworkConnected: StateFlow<Boolean> = _isNetworkConnected
-
-    private var networkCapabilities: NetworkCapabilities? = null
-    private var getNetworkRequest = getNetworkRequest()
-    private var networkCallback = getNetworkCallBack()
-
-    init {
-        observeAppLifecycle()
-    }
-
-    private fun observeAppLifecycle() =
-        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
-                super.onCreate(owner)
-                getConnectivityManager().registerNetworkCallback(getNetworkRequest, networkCallback)
-                handleUnregisteredNetworkState()
-                owner.lifecycleScope.launch { observeOnIsInternetAvailable() }
-            }
-
-            override fun onDestroy(owner: LifecycleOwner) {
-                super.onDestroy(owner)
-                getConnectivityManager().unregisterNetworkCallback(networkCallback)
-            }
-        })
-
-
-    private fun observeOnIsInternetAvailable() {
-        internetAccessObserver.isInternetAvailable = {
-            _isNetworkConnected.emit(it)
-        }
-    }
-
-    private fun getNetworkRequest(): NetworkRequest {
-        return NetworkRequest.Builder().addTransportType(TRANSPORT_WIFI)
-            .addTransportType(TRANSPORT_CELLULAR).addTransportType(TRANSPORT_ETHERNET).build()
-    }
-
-
-    private fun getNetworkCallBack(): ConnectivityManager.NetworkCallback {
-        return object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                networkCapabilities = getConnectivityManager().getNetworkCapabilities(network)
-                checkConnectInternetType()
-            }
-
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                getInternetAccessResponse()
-            }
-        }
-    }
-
-    private fun handleUnregisteredNetworkState() {
-        if (getActiveNetwork() == null) getInternetAccessResponse()
-    }
-
-    private fun getActiveNetwork() =
-        getConnectivityManager().getNetworkCapabilities(getConnectivityManager().activeNetwork)
-
-
-    private fun getConnectivityManager() =
+    private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
+    private val _isNetworkConnected =
+        MutableStateFlow(value = isCurrentlyConnected())
 
-    private fun checkConnectInternetType() {
-        networkCapabilities?.let {
-            when {
-                it.hasTransport(TRANSPORT_CELLULAR) -> getInternetAccessResponse()
-                it.hasTransport(TRANSPORT_WIFI) -> getInternetAccessResponse()
-                it.hasTransport(TRANSPORT_ETHERNET) -> getInternetAccessResponse()
-            }
+    override val isNetworkConnected: StateFlow<Boolean> =
+        _isNetworkConnected.asStateFlow()
+
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+
+        override fun onAvailable(network: Network) {
+            validateInternet()
+        }
+
+        override fun onLost(network: Network) {
+            _isNetworkConnected.value = false
+        }
+
+        override fun onUnavailable() {
+            _isNetworkConnected.value = false
         }
     }
 
+    private val lifecycleObserver = object : DefaultLifecycleObserver {
+        override fun onResume(owner: LifecycleOwner) {
+            _isNetworkConnected.value = isCurrentlyConnected()
+            validateInternet()
+        }
+    }
 
-    private fun getInternetAccessResponse() = internetAccessObserver.getInternetAccessResponse()
+    init {
+        connectivityManager.registerNetworkCallback(buildNetworkRequest(), networkCallback)
+        observeInternetValidation()
+        ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
+    }
+
+    private fun observeInternetValidation() {
+        internetAccessObserver.isInternetAvailable = { isAvailable ->
+            _isNetworkConnected.value = isAvailable
+        }
+    }
+
+    private fun validateInternet() {
+        internetAccessObserver.getInternetAccessResponse()
+    }
+
+    private fun isCurrentlyConnected(): Boolean {
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private fun buildNetworkRequest(): NetworkRequest {
+        return NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+    }
+
 }
